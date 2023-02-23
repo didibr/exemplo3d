@@ -1,0 +1,95 @@
+<!DOCTYPE HTML>
+<html lang="en-US">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="viewport" content="width=device-width">
+  <title>3D Exemplo</title>  
+</head>
+<body>
+  <div id="main" style="width:300px;height:300px">
+  </div>   
+  <script type="importmap">
+   {"imports": {"three": "https://unpkg.com/three@0.150.0/build/three.module.js"}}
+  </script> 
+  <script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from "https://unpkg.com/three@0.150.0/examples/jsm/controls/OrbitControls.js";
+const textureloader = new THREE.TextureLoader();
+
+var camera, scene, renderer, orbitControls;
+var mesh, div;
+var light;
+
+function init() {
+  //informa quem é o div que contem o canvas
+  div = document.querySelector('#main');
+  //define o aspect ration (largura/altura)
+  //alterar o ratio pode alterar a qualidade do render
+  var aspect = div.offsetWidth / div.offsetHeight;
+  //funcao do framework para criar o webgl
+  //campo de visao, aspecto, max proximidade, max profundidade
+  camera = new THREE.PerspectiveCamera(75, aspect, 0.1, 1000);
+  //coloca a camera um pouco distante da posicao zero (0,0,0)
+  camera.position.set(0, 0, 20);
+  //cria uma cena (é onde os objetos podem estar)
+  scene = new THREE.Scene();
+  //seta configurações de renderização
+  renderer = new THREE.WebGLRenderer({ antialias: true });
+  renderer.setClearColor(0x000000, 0);
+  renderer.setPixelRatio(window.devicePixelRatio);
+  renderer.setSize(div.offsetWidth, div.offsetHeight);
+  //adiciona a visualização do render (canvas) no div da pagina
+  div.appendChild(renderer.domElement);
+
+  //cria o controlador de camera orbital (framework)
+  orbitControls = new OrbitControls(camera, renderer.domElement);
+  //manda a camera olhar de onde está para o ponto zero
+  orbitControls.target.set(0, 0, 0);
+
+  //adiciona uma luz ambiente
+  //objetos sem luz não tem cor ou textura visiveis
+  light = new THREE.AmbientLight(0x404040); // soft white light
+  //inclui a luz a cena
+  scene.add(light);
+  
+  //chama funcao para criar a caixa
+  createBox();
+  //chama funcao para pintar o render
+  animate();
+}
+
+function createBox() {
+  //Cria a geometria Box (caixa) largura, altura, segmentos
+  const geometry = new THREE.BoxGeometry(10, 10, 10);
+  //utiliza o textureloader para carregar a imagem dentro
+  //da variavel textura
+  var textura = textureloader.load(
+    'https://i.ibb.co/f0Ct6CJ/Brick-Groutless0092-5-download600.jpg');
+  //cria o material para ser ablicado na geometria
+  const material = new THREE.MeshBasicMaterial({ map: textura });
+  //cria o objeto mesh juntando material e geometria
+  mesh = new THREE.Mesh(geometry, material);
+  //inclui o objeto na cena
+  scene.add(mesh);
+  //todo objeto que não tem definido a posicao é adicionado
+  //na posição zero (0,0,0)
+}
+
+
+function animate() { //esta funcao fica se repetindo
+  //pinta o WebGL no canvas ( renderiza a cena)
+  renderer.render(scene, camera);
+  //funcao do navegado para chamar o animate novamente
+  //quando for possivel no proximo frame
+  requestAnimationFrame(animate);
+  //o requestAnimationFrame é uma API nativa do navegador
+}
+
+document.addEventListener("DOMContentLoaded", function (e) {
+  init();
+});
+    
+  </script>  
+</body>
+</html>
